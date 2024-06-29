@@ -18,13 +18,13 @@
           dense
           icon="eva-home-outline"
           size="18px"
-          to="/home"
+          to="/"
           class="large-screen-only"
         />
       </q-toolbar>
     </q-header>
 
-    <q-page-container>
+    <q-page-container class="bg-grey-1">
       <router-view />
     </q-page-container>
 
