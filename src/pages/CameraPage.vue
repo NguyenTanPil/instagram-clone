@@ -23,6 +23,7 @@
       <q-file
         outlined
         v-model="imageUploaded"
+        :disable="postCreating"
         label="Choose an image"
         accept="image/*"
         @input="captureImageFallback"
@@ -35,17 +36,19 @@
 
     <div class="row justify-center q-ma-md">
       <q-input
-        v-model="post.caption"
         dense
+        :disable="postCreating"
+        v-model="post.caption"
         label="Caption"
         class="col col-sm-6"
       />
     </div>
     <div class="row justify-center q-ma-md">
       <q-input
+        dense
+        :disable="postCreating"
         v-model="post.location"
         :loading="locationLoading"
-        dense
         label="Location"
         class="col col-sm-6"
       >
@@ -61,9 +64,17 @@
     </div>
 
     <div class="row justify-center q-mt-lg">
-      <q-btn color="primary" label="Post Image" rounded />
+      <q-btn
+        color="primary"
+        label="Post Image"
+        rounded
+        :loading="postCreating"
+        :disabled="!post.caption || !post.photo"
+        @click="addPost"
+      />
     </div>
   </q-page>
+  <template> </template>
 </template>
 
 <script setup>
@@ -76,18 +87,30 @@ import { onUnmounted } from "vue";
 import axios from "axios";
 import { useQuasar } from "quasar";
 import { computed } from "vue";
+import {
+  ref as storeRef,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { useRouter } from "vue-router";
+import { storage } from "app/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import db from "../../firebase";
 
 defineOptions({
   name: "CameraPage",
 });
 
 const $q = useQuasar();
+const router = useRouter();
+
 const video = ref(null);
 const canvas = ref(null);
 const imageUploaded = ref([]);
 const imageCaptured = ref(false);
 const hasCameraSupport = ref(true);
 const locationLoading = ref(false);
+const postCreating = ref(false);
 
 const post = reactive({
   id: uid(),
@@ -159,7 +182,7 @@ const captureImage = () => {
 };
 
 const captureImageFallback = (file) => {
-  post.photo = file;
+  post.photo = file.target.files[0];
   const context = canvas.value.getContext("2d");
 
   const reader = new FileReader();
@@ -220,6 +243,68 @@ const getLocation = () => {
       });
     },
     { timeout: 7000 }
+  );
+};
+
+const showNotifyCreatedSuccess = () => {
+  $q.notify({
+    message: "Post Created",
+    color: "primary",
+    actions: [
+      {
+        label: "Dismiss",
+        color: "white",
+      },
+    ],
+  });
+};
+
+const createNewPostAfterUpdateImage = async (data) => {
+  await setDoc(doc(db, "posts", data.id), data);
+  showNotifyCreatedSuccess();
+  router.push("/");
+  postCreating.value = false;
+};
+
+const addPost = () => {
+  const data = {
+    id: post.id,
+    caption: post.caption,
+    location: post.location,
+    date: post.date,
+  };
+
+  postCreating.value = true;
+  const storageRef = storeRef(storage, `images/posts/${post.photo.name}`);
+  const uploadTask = uploadBytesResumable(storageRef, post.photo);
+
+  uploadTask.on(
+    "state_changed",
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      console.log("Upload is " + progress + "% done");
+      switch (snapshot.state) {
+        case "paused":
+          console.log("Upload is paused");
+          break;
+        case "running":
+          console.log("Upload is running");
+          break;
+      }
+    },
+    () => {
+      postCreating.value = false;
+      $q.dialog({
+        title: "Error",
+        message: "Can not create a new post",
+      });
+    },
+    () => {
+      getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+        data.imageUrl = downloadURL;
+        createNewPostAfterUpdateImage(data);
+      });
+    }
   );
 };
 

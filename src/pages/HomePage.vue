@@ -1,7 +1,7 @@
 <template>
   <q-page class="constrain q-pa-md">
     <div class="row q-col-gutter-lg">
-      <div class="col-12 col-sm-8">
+      <div class="col-12 col-sm-7">
         <template v-if="!isLoadingPosts && posts.length > 0">
           <q-card
             v-for="post in posts"
@@ -75,19 +75,99 @@
           </div>
         </template>
       </div>
-      <div class="col-4 large-screen-only">
-        <q-item class="fixed">
-          <q-item-section avatar>
-            <q-avatar size="48px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-            </q-avatar>
-          </q-item-section>
+      <div class="col-5 large-screen-only">
+        <div class="fixed">
+          <q-item>
+            <q-item-section avatar>
+              <q-avatar size="48px">
+                <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+              </q-avatar>
+            </q-item-section>
 
-          <q-item-section>
-            <q-item-label class="text-bold">john_doe</q-item-label>
-            <q-item-label caption>John Doe</q-item-label>
-          </q-item-section>
-        </q-item>
+            <q-item-section>
+              <q-item-label class="text-bold">john_doe</q-item-label>
+              <q-item-label caption>John Doe</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <div>
+            <h6 class="text-grey q-my-xs q-mt-md text-subtitle2">
+              Suggests For You
+            </h6>
+            <q-list>
+              <q-item class="q-mb-sm" v-ripple>
+                <q-item-section avatar>
+                  <q-avatar size="md">
+                    <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Brunhilde</q-item-label>
+                  <q-item-label caption lines="1">bpanswick4@.com</q-item-label>
+                </q-item-section>
+
+                <q-item-section class="text-primary q-ml-xl" side
+                  >Follow</q-item-section
+                >
+              </q-item>
+              <q-item class="q-mb-sm" v-ripple>
+                <q-item-section avatar>
+                  <q-avatar size="md">
+                    <img src="https://cdn.quasar.dev/img/avatar6.jpg" />
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Winfield</q-item-label>
+                  <q-item-label caption lines="1"
+                    >wstapforth5@.com</q-item-label
+                  >
+                </q-item-section>
+
+                <q-item-section class="text-primary q-ml-xl" side
+                  >Follow</q-item-section
+                >
+              </q-item>
+
+              <q-item class="q-mb-sm" v-ripple>
+                <q-item-section avatar>
+                  <q-avatar size="md">
+                    <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>John</q-item-label>
+                  <q-item-label caption lines="1">johnx22@.com</q-item-label>
+                </q-item-section>
+
+                <q-item-section class="text-primary q-ml-xl" side
+                  >Follow</q-item-section
+                >
+              </q-item>
+
+              <q-item class="q-mb-sm" v-ripple>
+                <q-item-section avatar>
+                  <q-avatar size="md">
+                    <img
+                      src="https://gravatar.com/avatar/27205e5c51cb03f862138b22bcb5dc20f94a342e744ff6df1b8dc8af3c865109"
+                    />
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Peter</q-item-label>
+                  <q-item-label caption lines="1">peterhax@.com</q-item-label>
+                </q-item-section>
+
+                <q-item-section class="text-primary q-ml-xl" side
+                  >Follow</q-item-section
+                >
+              </q-item>
+            </q-list>
+          </div>
+        </div>
       </div>
     </div>
   </q-page>
@@ -107,7 +187,6 @@ const $q = useQuasar();
 const postsStore = usePosts();
 const { posts, isGetPostsError, isLoadingPosts } = storeToRefs(postsStore);
 const { getPosts } = postsStore;
-console.log({ isGetPostsError, isLoadingPosts });
 
 const niceDate = (value) => {
   return date.formatDate(value, "MMM D h:mmA");
